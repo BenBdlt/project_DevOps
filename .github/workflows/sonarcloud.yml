@@ -3,66 +3,48 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-# This workflow helps you trigger a SonarCloud analysis of your code and populates 
-# GitHub Code Scanning alerts with the vulnerabilities found.
-# Free for open source project.
-
-# 1. Login to SonarCloud.io using your GitHub account
-
-# 2. Import your project on SonarCloud
-#     * Add your GitHub organization first, then add your repository as a new project.
-#     * Please note that many languages are eligible for automatic analysis, 
-#       which means that the analysis will start automatically without the need to set up GitHub Actions.
-#     * This behavior can be changed in Administration > Analysis Method.
-# 
-# 3. Follow the SonarCloud in-product tutorial
-#     * a. Copy/paste the Project Key and the Organization Key into the args parameter below
-#          (You'll find this information in SonarCloud. Click on "Information" at the bottom left)
-#
-#     * b. Generate a new token and add it to your Github repository's secrets using the name SONAR_TOKEN
-#          (On SonarCloud, click on your avatar on top-right > My account > Security 
-#           or go directly to https://sonarcloud.io/account/security/)
-
-# Feel free to take a look at our documentation (https://docs.sonarcloud.io/getting-started/github/)
-# or reach out to our community forum if you need some help (https://community.sonarsource.com/c/help/sc/9)
-
-name: SonarCloud analysis
+name: Publish Docker image
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-
-permissions:
-  pull-requests: read # allows SonarCloud to decorate PRs with analysis results
+  release:
+    types: [published]
 
 jobs:
-  Analysis:
+  push_to_registries:
+    name: Push Docker image to multiple registries
     runs-on: ubuntu-latest
-    
+    permissions:
+      packages: write
+      contents: read
     steps:
-      - name: Analyze with SonarCloud         
-
-        # You can pin the exact commit or the version.
-        # uses: SonarSource/sonarcloud-github-action@de2e56b42aa84d0b1c5b622644ac17e505c9a049
-        uses: SonarSource/sonarcloud-github-action@de2e56b42aa84d0b1c5b622644ac17e505c9a049
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Generate a token on Sonarcloud.io, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
-          # Additional arguments for the sonarcloud scanner
-          args:             
-            # Unique keys of your project and organization. You can find them in SonarCloud > Information (bottom-left menu)
-            # mandatory
-            -Dsonar.projectKey=BenBdlt_project_DevOps
-            -Dsonar.organization=benbdlt
-            # Comma-separated paths to directories containing main source files.
-            #-Dsonar.sources= # optional, default is project base directory
-            # When you need the analysis to take place in a directory other than the one from which it was launched
-            #-Dsonar.projectBaseDir= # optional, default is .
-            # Comma-separated paths to directories containing test source files.
-            #-Dsonar.tests= # optional. For more info about Code Coverage, please refer to https://docs.sonarcloud.io/enriching/test-coverage/overview/
-            # Adds more detail to both client and server-side analysis logs, activating DEBUG mode for the scanner, and adding client-side environment variables and system properties to the server-side log of analysis report processing.
-            #-Dsonar.verbose= # optional, default is false   
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: |
+            my-docker-hub-namespace/my-docker-hub-repository
+            ghcr.io/${{ github.repository }}
+      
+      - name: Build and push Docker images
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
