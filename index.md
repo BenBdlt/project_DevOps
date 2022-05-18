@@ -1,37 +1,31 @@
-## Welcome to GitHub Pages
+## Page GitHub - DevOps projet B3DEV - Benjamin Bordelet
 
-You can use the [editor on GitHub](https://github.com/BenBdlt/project_DevOps/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
-
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+### Liste des étapes de la pipeline réalisé sur GitHub :
 
 ```markdown
-Syntax highlighted code block
+Test Unitaire :
+- Build de l'applciation NodeJS
+- Lancement du script de test (npm run test)
+- 
+Test de Sécurité :
+- Build de l'image docker
+- Scan de vulnérabilité Trivy
+- 
+Test de Qualité :
+- Utilisation de Sonarcloud et son indice de qualité
 
-# Header 1
-## Header 2
-### Header 3
+Push de l'image Docker sur DockerHub :
+- Connexion au DockerHub
+- Connexion au registre des container
+- Build & push de l'image Docker
 
-- Bulleted
-- List
+Mise en place d'un artifact téléchargeable
+- Créer un dossier downloads, disponible en bas de chaque actions de test GitHub
+- Texte de confirmation du bon déroulement du script
 
-1. Numbered
-2. List
+Notification Discord
+- Ajout d'un WebHook relié au salon travail d'un serveur discord personnel
+- Notification sur le salon discord lors d'un push sur main
 
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+![image](https://user-images.githubusercontent.com/57449415/169058503-425a2d3a-4c31-4156-98b5-a32d1656c47c.png)
 ```
-
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/BenBdlt/project_DevOps/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
